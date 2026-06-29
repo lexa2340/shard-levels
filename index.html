@@ -2,53 +2,53 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shard - Уровни</title>
     <style>
-        body { background: #1a1a2e; color: #eee; font-family: sans-serif; text-align: center; margin: 0; padding: 20px; }
-        h1 { color: #e94560; }
-        .level { background: #16213e; margin: 10px auto; padding: 15px; border-radius: 8px; max-width: 400px; }
-        .level a { color: #e94560; text-decoration: none; font-size: 18px; }
-        .level span { color: #888; font-size: 14px; }
-        .upload { background: #0f3460; margin: 20px auto; padding: 20px; border-radius: 8px; max-width: 400px; }
-        input, button { padding: 10px; margin: 5px; border: none; border-radius: 4px; }
-        button { background: #e94560; color: white; cursor: pointer; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #1a1a2e; color: #eee; font-family: 'Segoe UI', sans-serif; text-align: center; padding: 20px; min-height: 100vh; }
+        h1 { color: #e94560; font-size: 2.5em; margin-bottom: 10px; }
+        .subtitle { color: #888; margin-bottom: 30px; }
+        .level { background: #16213e; margin: 15px auto; padding: 20px; border-radius: 12px; max-width: 500px; text-align: left; }
+        .level strong { font-size: 1.2em; display: block; margin-bottom: 5px; }
+        .level .info { color: #888; font-size: 0.9em; margin-bottom: 10px; }
+        .level a { background: #e94560; color: white; padding: 10px 20px; border-radius: 6px; text-decoration: none; display: inline-block; font-weight: bold; }
+        .level a:hover { background: #ff6b81; }
+        .loading { color: #888; font-size: 1.2em; margin-top: 50px; }
+        .error { color: #e94560; }
     </style>
 </head>
 <body>
-    <h1>Shard - Пользовательские уровни</h1>
-    
-    <div class="upload">
-        <h3>Загрузить уровень</h3>
-        <input type="file" id="fileInput" accept=".zip"><br>
-        <button onclick="uploadLevel()">Загрузить</button>
-        <p id="status"></p>
-    </div>
-
-    <div id="levels">Загрузка...</div>
+    <h1>Shard</h1>
+    <p class="subtitle">Пользовательские уровни</p>
+    <div id="levels"><p class="loading">Загрузка уровней...</p></div>
 
     <script>
-        const levels = [
-            { name: "Шквал стрелок", file: "levels/level1.zip", author: "dev" },
-            { name: "Ритм битва", file: "levels/level2.zip", author: "dev" }
-        ];
+        const API = 'https://script.google.com/macros/s/AKfycbw7Qq0HOJx2VR1TZtfyOhLJpO3VOxh35p2NVTBVXaeGVtX8fGLWr0GbKNPlrx1ufUCE/exec';
 
-        function loadLevels() {
-            document.getElementById('levels').innerHTML = levels.map(l =>
-                `<div class="level">
-                    <strong>${l.name}</strong><br>
-                    <span>Автор: ${l.author}</span><br>
-                    <a href="${l.file}" download>Скачать</a>
-                </div>`
-            ).join('');
-        }
+        async function loadLevels() {
+            try {
+                const response = await fetch(API);
+                const levels = await response.json();
+                
+                if (levels.length === 0) {
+                    document.getElementById('levels').innerHTML = '<p>Уровней пока нет. Загляните позже!</p>';
+                    return;
+                }
 
-        function uploadLevel() {
-            const file = document.getElementById('fileInput').files[0];
-            if (!file) {
-                document.getElementById('status').textContent = 'Выберите файл';
-                return;
+                document.getElementById('levels').innerHTML = levels.map(l => {
+                    const name = l.name.replace('.zip', '').replace('.7z', '');
+                    const sizeMB = (l.size / 1024 / 1024).toFixed(1);
+                    return `
+                        <div class="level">
+                            <strong>${name}</strong>
+                            <p class="info">Размер: ${sizeMB} МБ</p>
+                            <a href="${l.url}" download>Скачать</a>
+                        </div>`;
+                }).join('');
+            } catch (e) {
+                document.getElementById('levels').innerHTML = '<p class="error">Ошибка загрузки уровней. Попробуйте позже.</p>';
             }
-            document.getElementById('status').textContent = 'Для загрузки создайте Pull Request на GitHub с вашим .zip в папке levels/';
         }
 
         loadLevels();
