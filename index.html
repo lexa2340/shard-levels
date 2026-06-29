@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Shard - Уровни</title>
+    <style>
+        body { background: #1a1a2e; color: #eee; font-family: sans-serif; text-align: center; margin: 0; padding: 20px; }
+        h1 { color: #e94560; }
+        .level { background: #16213e; margin: 10px auto; padding: 15px; border-radius: 8px; max-width: 400px; }
+        .level a { color: #e94560; text-decoration: none; font-size: 18px; }
+        .level span { color: #888; font-size: 14px; }
+        .upload { background: #0f3460; margin: 20px auto; padding: 20px; border-radius: 8px; max-width: 400px; }
+        input, button { padding: 10px; margin: 5px; border: none; border-radius: 4px; }
+        button { background: #e94560; color: white; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>Shard - Пользовательские уровни</h1>
+    
+    <div class="upload">
+        <h3>Загрузить уровень</h3>
+        <input type="file" id="fileInput" accept=".zip"><br>
+        <button onclick="uploadLevel()">Загрузить</button>
+        <p id="status"></p>
+    </div>
+
+    <div id="levels">Загрузка...</div>
+
+    <script>
+        const levels = [
+            { name: "Шквал стрелок", file: "levels/level1.zip", author: "dev" },
+            { name: "Ритм битва", file: "levels/level2.zip", author: "dev" }
+        ];
+
+        function loadLevels() {
+            document.getElementById('levels').innerHTML = levels.map(l =>
+                `<div class="level">
+                    <strong>${l.name}</strong><br>
+                    <span>Автор: ${l.author}</span><br>
+                    <a href="${l.file}" download>Скачать</a>
+                </div>`
+            ).join('');
+        }
+
+        function uploadLevel() {
+            const file = document.getElementById('fileInput').files[0];
+            if (!file) {
+                document.getElementById('status').textContent = 'Выберите файл';
+                return;
+            }
+            document.getElementById('status').textContent = 'Для загрузки создайте Pull Request на GitHub с вашим .zip в папке levels/';
+        }
+
+        loadLevels();
+    </script>
+</body>
+</html>
